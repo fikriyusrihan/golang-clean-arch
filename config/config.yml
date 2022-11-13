@@ -3,8 +3,8 @@ database:
   password: postgres
   host: localhost
   port: 5432
-  dbname: books
-  sslmode: require
+  dbname: books_api
+  sslmode: disable
 
 server:
   address: 8000
