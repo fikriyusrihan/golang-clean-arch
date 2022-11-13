@@ -16,6 +16,7 @@ type config struct {
 		Host     string
 		Port     string
 		DBName   string
+		SSLMode  string
 	}
 
 	Server struct {
