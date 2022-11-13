@@ -10,3 +10,11 @@ type Review struct {
 	Rating    uint8     `json:"rating"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type ResponseReview struct {
+	ID        uint      `json:"id"`
+	Writer    string    `json:"writer"`
+	Content   string    `json:"content"`
+	Rating    uint8     `json:"rating"`
+	CreatedAt time.Time `json:"created_at"`
+}

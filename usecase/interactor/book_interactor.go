@@ -18,6 +18,7 @@ type BookInteractor interface {
 	Get() ([]*domain.ResponseBook, error)
 	GetByISBN(isbn string) (*domain.ResponseDetailBook, error)
 	GetByTitle(title string) ([]*domain.ResponseBook, error)
+	GetBookReviews(book *domain.Book) ([]domain.ResponseReview, error)
 }
 
 func NewBookInteractor(r repository.BookRepository, p presenter.BookPresenter) BookInteractor {
@@ -71,4 +72,13 @@ func (bi *bookInteractor) GetByTitle(title string) ([]*domain.ResponseBook, erro
 	}
 
 	return bi.BookPresenter.ResponseBooks(books), nil
+}
+
+func (bi *bookInteractor) GetBookReviews(book *domain.Book) ([]domain.ResponseReview, error) {
+	reviews, err := bi.BookRepository.FetchBookReviews(book)
+	if err != nil {
+		return nil, err
+	}
+
+	return bi.BookPresenter.ResponseReviews(reviews), nil
 }

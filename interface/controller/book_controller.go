@@ -56,6 +56,15 @@ func (bc *bookController) GetBookByISBN(isbn string, c Context) error {
 		return err
 	}
 
+	reviews, err := bc.bookInteractor.GetBookReviews(&domain.Book{
+		ISBN: book.ISBN,
+	})
+	if err != nil {
+		return err
+	}
+
+	book.Reviews = reviews
+
 	return c.JSON(http.StatusOK, book)
 }
 

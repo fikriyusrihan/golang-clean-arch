@@ -7,6 +7,7 @@ type BookRepository interface {
 	Update(book *domain.Book) (*domain.Book, error)
 	Delete(book *domain.Book) error
 	Fetch() ([]*domain.Book, error)
+	FetchBookReviews(book *domain.Book) ([]*domain.Review, error)
 	FindByISBN(isbn string) (*domain.Book, error)
 	FindByTitle(title string) ([]*domain.Book, error)
 }

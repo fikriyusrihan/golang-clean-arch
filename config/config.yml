@@ -1,7 +1,7 @@
 database:
   username: postgres
   password: postgres
-  host: db-books
+  host: localhost
   port: 5432
   dbname: books_api
   sslmode: disable

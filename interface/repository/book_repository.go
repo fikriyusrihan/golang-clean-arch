@@ -16,6 +16,7 @@ type BookRepository interface {
 	Fetch() ([]*domain.Book, error)
 	FindByISBN(isbn string) (*domain.Book, error)
 	FindByTitle(title string) ([]*domain.Book, error)
+	FetchBookReviews(book *domain.Book) ([]*domain.Review, error)
 }
 
 func NewBookRepository(db *gorm.DB) BookRepository {
@@ -62,6 +63,18 @@ func (br *bookRepository) Fetch() ([]*domain.Book, error) {
 	}
 
 	return books, nil
+}
+
+func (br *bookRepository) FetchBookReviews(book *domain.Book) ([]*domain.Review, error) {
+	var reviews []*domain.Review
+
+	result := br.db.Find(&reviews, "isbn = ?", book.ISBN)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return reviews, nil
 }
 
 func (br *bookRepository) FindByISBN(isbn string) (*domain.Book, error) {

@@ -11,6 +11,11 @@ func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 	e.Use(middleware.Recover())
 
 	e.GET("/books", func(context echo.Context) error { return c.GetBooks(context) })
+	e.GET("/books/:isbn", func(context echo.Context) error {
+		isbn := context.Param("isbn")
+		
+		return c.GetBookByISBN(isbn, context)
+	})
 
 	return e
 }
