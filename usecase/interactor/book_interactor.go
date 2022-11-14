@@ -12,8 +12,8 @@ type bookInteractor struct {
 }
 
 type BookInteractor interface {
-	Create(book *domain.Book) (*domain.ResponseDetailBook, error)
-	Update(book *domain.Book) (*domain.ResponseDetailBook, error)
+	Create(book *domain.RequestBook) (*domain.ResponseDetailBook, error)
+	Update(book *domain.RequestBook) (*domain.ResponseDetailBook, error)
 	Delete(book *domain.Book) error
 	Get() ([]*domain.ResponseBook, error)
 	GetByISBN(isbn string) (*domain.ResponseDetailBook, error)
@@ -25,8 +25,8 @@ func NewBookInteractor(r repository.BookRepository, p presenter.BookPresenter) B
 	return &bookInteractor{r, p}
 }
 
-func (bi *bookInteractor) Create(book *domain.Book) (*domain.ResponseDetailBook, error) {
-	book, err := bi.BookRepository.Create(book)
+func (bi *bookInteractor) Create(bookRequest *domain.RequestBook) (*domain.ResponseDetailBook, error) {
+	book, err := bi.BookRepository.Create(bookRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +34,8 @@ func (bi *bookInteractor) Create(book *domain.Book) (*domain.ResponseDetailBook,
 	return bi.BookPresenter.ResponseBook(book), nil
 }
 
-func (bi *bookInteractor) Update(book *domain.Book) (*domain.ResponseDetailBook, error) {
-	book, err := bi.BookRepository.Update(book)
+func (bi *bookInteractor) Update(bookRequest *domain.RequestBook) (*domain.ResponseDetailBook, error) {
+	book, err := bi.BookRepository.Update(bookRequest)
 	if err != nil {
 		return nil, err
 	}

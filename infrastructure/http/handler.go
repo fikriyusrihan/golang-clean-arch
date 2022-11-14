@@ -2,7 +2,6 @@ package http
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/fikriyusrihan/golang-clean-arch/domain"
 	"github.com/fikriyusrihan/golang-clean-arch/interface/controller"
@@ -36,18 +35,7 @@ func PostBook(ctr controller.AppController) echo.HandlerFunc {
 			return c.String(http.StatusBadRequest, "Bad Request")
 		}
 
-		book := domain.Book{
-			ISBN:        bookRequest.ISBN,
-			Title:       bookRequest.Title,
-			Author:      bookRequest.Author,
-			Description: bookRequest.Description,
-			PageCount:   bookRequest.PageCount,
-			CoverUrl:    bookRequest.CoverUrl,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
-		}
-
-		return ctr.CreateBook(&book, c)
+		return ctr.CreateBook(bookRequest, c)
 	}
 }
 
@@ -58,16 +46,7 @@ func PutBook(ctr controller.AppController) echo.HandlerFunc {
 			return c.String(http.StatusBadRequest, "Bad Request")
 		}
 
-		book := domain.Book{
-			ISBN:        bookRequest.ISBN,
-			Title:       bookRequest.Title,
-			Author:      bookRequest.Author,
-			Description: bookRequest.Description,
-			PageCount:   bookRequest.PageCount,
-			CoverUrl:    bookRequest.CoverUrl,
-		}
-
-		return ctr.UpdateBook(&book, c)
+		return ctr.UpdateBook(bookRequest, c)
 	}
 }
 
