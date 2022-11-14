@@ -1,0 +1,125 @@
+package controller
+
+import (
+	"net/http"
+
+	"github.com/fikriyusrihan/golang-clean-arch/domain"
+	"github.com/fikriyusrihan/golang-clean-arch/usecase/interactor"
+)
+
+type bookController struct {
+	bookInteractor interactor.BookInteractor
+}
+
+type BookController interface {
+	CreateBook(book *domain.RequestBook, c Context) error
+	UpdateBook(book *domain.RequestBook, c Context) error
+	DeleteBook(book *domain.Book, c Context) error
+	GetBooks(c Context) error
+	GetBookByISBN(isbn string, c Context) error
+	GetBooksByTitle(title string, c Context) error
+}
+
+func NewBookController(bi interactor.BookInteractor) BookController {
+	return &bookController{bi}
+}
+
+func (bc *bookController) CreateBook(book *domain.RequestBook, c Context) error {
+	bookDetail, err := bc.bookInteractor.Create(book)
+	if err != nil {
+		return err
+	}
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data:    bookDetail,
+	}
+
+	return c.JSON(http.StatusCreated, apiResponse)
+}
+
+func (bc *bookController) GetBooks(c Context) error {
+	books, err := bc.bookInteractor.Get()
+	if err != nil {
+		return err
+	}
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data:    books,
+	}
+
+	return c.JSON(http.StatusOK, apiResponse)
+}
+
+func (bc *bookController) DeleteBook(book *domain.Book, c Context) error {
+	if err := bc.bookInteractor.Delete(book); err != nil {
+		return err
+	}
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data: map[string]string{
+			"isbn": book.ISBN,
+		},
+	}
+
+	return c.JSON(http.StatusOK, apiResponse)
+}
+
+func (bc *bookController) GetBookByISBN(isbn string, c Context) error {
+	book, err := bc.bookInteractor.GetByISBN(isbn)
+	if err != nil {
+		return err
+	}
+
+	reviews, err := bc.bookInteractor.GetBookReviews(&domain.Book{
+		ISBN: book.ISBN,
+	})
+	if err != nil {
+		return err
+	}
+
+	book.Reviews = reviews
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data:    book,
+	}
+
+	return c.JSON(http.StatusOK, apiResponse)
+}
+
+func (bc *bookController) GetBooksByTitle(title string, c Context) error {
+	book, err := bc.bookInteractor.GetByTitle(title)
+	if err != nil {
+		return err
+	}
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data:    book,
+	}
+
+	return c.JSON(http.StatusOK, apiResponse)
+}
+
+func (bc *bookController) UpdateBook(book *domain.RequestBook, c Context) error {
+	bookResponse, err := bc.bookInteractor.Update(book)
+	if err != nil {
+		return err
+	}
+
+	apiResponse := domain.ResponseApiSuccess{
+		Error:   false,
+		Message: "success",
+		Data:    bookResponse,
+	}
+
+	return c.JSON(http.StatusOK, apiResponse)
+}
