@@ -16,6 +16,28 @@ This project has 4 layers and each layer has a role as following:
 * Viper (Configuration)
 * Docker (Containerization)
 
+## Run the Applications
+This repository requires Docker to run.
+```sh
+# move to directory
+cd workspace
+
+# clone repository
+git clone https://github.com/fikriyusrihan/golang-clean-arch.git
+
+# move to project
+cd golang-clean-arch
+
+# build and run container
+docker compose up
+
+# call an endpoint
+curl -x GET http://localhost:8000/v1/books -i
+
+# stop container
+docker compose down
+```
+
 ## Special Thanks
 I learn a lot about Clean Architecture with Golang from [Manakuro's Repository] and [Iman Tumorang's repository]. Kindly check their repository and article on Medium.
 
