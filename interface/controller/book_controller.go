@@ -27,26 +27,15 @@ func NewBookController(bi interactor.BookInteractor) BookController {
 func (bc *bookController) CreateBook(c Context) error {
 	bookRequest := new(domain.RequestBook)
 	if err := c.Bind(&bookRequest); err != nil {
-		apiResponse := domain.ResponseApiError{
-			Error:   true,
-			Message: "Bad Request",
-		}
-
-		return c.JSON(http.StatusBadRequest, apiResponse)
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
 	}
 
 	bookDetail, err := bc.bookInteractor.Create(bookRequest)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    bookDetail,
-	}
-
-	return c.JSON(http.StatusCreated, apiResponse)
+	return successApiResponse(http.StatusCreated, bookDetail, c)
 }
 
 func (bc *bookController) GetBooks(c Context) error {
@@ -57,42 +46,27 @@ func (bc *bookController) GetBooks(c Context) error {
 
 	books, err := bc.bookInteractor.Get()
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    books,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, books, c)
 }
 
 func (bc *bookController) DeleteBook(c Context) error {
 	bookRequest := new(domain.RequestBook)
 	if err := c.Bind(bookRequest); err != nil {
-		apiResponse := domain.ResponseApiError{
-			Error:   true,
-			Message: "Bad Request",
-		}
-
-		return c.JSON(http.StatusBadRequest, apiResponse)
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
 	}
 
 	if err := bc.bookInteractor.Delete(bookRequest); err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data: map[string]string{
-			"isbn": bookRequest.ISBN,
-		},
+	data := map[string]string{
+		"isbn": bookRequest.ISBN,
 	}
 
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, data, c)
 }
 
 func (bc *bookController) GetBookByISBN(c Context) error {
@@ -100,65 +74,61 @@ func (bc *bookController) GetBookByISBN(c Context) error {
 
 	book, err := bc.bookInteractor.GetByISBN(isbn)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
 	reviews, err := bc.bookInteractor.GetBookReviews(&domain.Book{
 		ISBN: book.ISBN,
 	})
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
 	book.Reviews = reviews
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    book,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, book, c)
 }
 
 func (bc *bookController) GetBooksByTitle(c Context) error {
 	title := c.Param("title")
-	
+
 	book, err := bc.bookInteractor.GetByTitle(title)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    book,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, book, c)
 }
 
 func (bc *bookController) UpdateBook(c Context) error {
 	bookRequest := new(domain.RequestBook)
 	if err := c.Bind(bookRequest); err != nil {
-		apiResponse := domain.ResponseApiError{
-			Error:   true,
-			Message: "Bad Request",
-		}
-
-		return c.JSON(http.StatusBadRequest, apiResponse)
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
 	}
 
 	bookResponse, err := bc.bookInteractor.Update(bookRequest)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
+	return successApiResponse(http.StatusOK, bookResponse, c)
+}
+
+func errorApiResponse(code int, message string, c Context) error {
+	apiResponse := domain.ResponseApiError{
+		Error:   true,
+		Message: message,
+	}
+
+	return c.JSON(code, apiResponse)
+}
+
+func successApiResponse(code int, data interface{}, c Context) error {
 	apiResponse := domain.ResponseApiSuccess{
 		Error:   false,
-		Message: "success",
-		Data:    bookResponse,
+		Message: "Success",
+		Data:    data,
 	}
 
-	return c.JSON(http.StatusOK, apiResponse)
+	return c.JSON(code, apiResponse)
 }

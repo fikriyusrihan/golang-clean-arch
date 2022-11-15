@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/fikriyusrihan/golang-clean-arch/domain"
 	"gorm.io/gorm"
 )
@@ -12,9 +10,9 @@ type bookRepository struct {
 }
 
 type BookRepository interface {
-	Create(book *domain.RequestBook) (*domain.Book, error)
-	Update(book *domain.RequestBook) (*domain.Book, error)
-	Delete(book *domain.RequestBook) error
+	Create(book *domain.Book) (*domain.Book, error)
+	Update(book *domain.Book) (*domain.Book, error)
+	Delete(book *domain.Book) error
 	Fetch() ([]*domain.Book, error)
 	FindByISBN(isbn string) (*domain.Book, error)
 	FindByTitle(title string) ([]*domain.Book, error)
@@ -25,47 +23,27 @@ func NewBookRepository(db *gorm.DB) BookRepository {
 	return &bookRepository{db}
 }
 
-func (br *bookRepository) Create(bookRequest *domain.RequestBook) (*domain.Book, error) {
-	book := domain.Book{
-		ISBN:        bookRequest.ISBN,
-		Title:       bookRequest.Title,
-		Author:      bookRequest.Author,
-		Description: bookRequest.Description,
-		PageCount:   bookRequest.PageCount,
-		CoverUrl:    bookRequest.CoverUrl,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
+func (br *bookRepository) Create(book *domain.Book) (*domain.Book, error) {
 	result := br.db.Create(&book)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &book, nil
+	return book, nil
 }
 
-func (br *bookRepository) Update(bookRequest *domain.RequestBook) (*domain.Book, error) {
-	book := domain.Book{
-		ISBN:        bookRequest.ISBN,
-		Title:       bookRequest.Title,
-		Author:      bookRequest.Author,
-		Description: bookRequest.Description,
-		PageCount:   bookRequest.PageCount,
-		CoverUrl:    bookRequest.CoverUrl,
-	}
-
+func (br *bookRepository) Update(book *domain.Book) (*domain.Book, error) {
 	result := br.db.Save(book)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &book, nil
+	return book, nil
 }
 
-func (br *bookRepository) Delete(bookRequest *domain.RequestBook) error {
+func (br *bookRepository) Delete(bookRequest *domain.Book) error {
 	book := domain.Book{
 		ISBN: bookRequest.ISBN,
 	}
