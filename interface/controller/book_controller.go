@@ -12,114 +12,123 @@ type bookController struct {
 }
 
 type BookController interface {
-	CreateBook(book *domain.RequestBook, c Context) error
-	UpdateBook(book *domain.RequestBook, c Context) error
-	DeleteBook(book *domain.Book, c Context) error
+	CreateBook(c Context) error
+	UpdateBook(c Context) error
+	DeleteBook(c Context) error
 	GetBooks(c Context) error
-	GetBookByISBN(isbn string, c Context) error
-	GetBooksByTitle(title string, c Context) error
+	GetBookByISBN(c Context) error
+	GetBooksByTitle(c Context) error
 }
 
 func NewBookController(bi interactor.BookInteractor) BookController {
 	return &bookController{bi}
 }
 
-func (bc *bookController) CreateBook(book *domain.RequestBook, c Context) error {
-	bookDetail, err := bc.bookInteractor.Create(book)
+func (bc *bookController) CreateBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(&bookRequest); err != nil {
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
+	}
+
+	bookDetail, err := bc.bookInteractor.Create(bookRequest)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    bookDetail,
-	}
-
-	return c.JSON(http.StatusCreated, apiResponse)
+	return successApiResponse(http.StatusCreated, bookDetail, c)
 }
 
 func (bc *bookController) GetBooks(c Context) error {
+	title := c.QueryParam("title")
+	if title != "null" {
+		return bc.GetBooksByTitle(c)
+	}
+
 	books, err := bc.bookInteractor.Get()
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    books,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, books, c)
 }
 
-func (bc *bookController) DeleteBook(book *domain.Book, c Context) error {
-	if err := bc.bookInteractor.Delete(book); err != nil {
-		return err
+func (bc *bookController) DeleteBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(bookRequest); err != nil {
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data: map[string]string{
-			"isbn": book.ISBN,
-		},
+	if err := bc.bookInteractor.Delete(bookRequest); err != nil {
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	return c.JSON(http.StatusOK, apiResponse)
+	data := map[string]string{
+		"isbn": bookRequest.ISBN,
+	}
+
+	return successApiResponse(http.StatusOK, data, c)
 }
 
-func (bc *bookController) GetBookByISBN(isbn string, c Context) error {
+func (bc *bookController) GetBookByISBN(c Context) error {
+	isbn := c.Param("isbn")
+
 	book, err := bc.bookInteractor.GetByISBN(isbn)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
 	reviews, err := bc.bookInteractor.GetBookReviews(&domain.Book{
 		ISBN: book.ISBN,
 	})
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
 	book.Reviews = reviews
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    book,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, book, c)
 }
 
-func (bc *bookController) GetBooksByTitle(title string, c Context) error {
+func (bc *bookController) GetBooksByTitle(c Context) error {
+	title := c.Param("title")
+
 	book, err := bc.bookInteractor.GetByTitle(title)
 	if err != nil {
-		return err
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
 	}
 
-	apiResponse := domain.ResponseApiSuccess{
-		Error:   false,
-		Message: "success",
-		Data:    book,
-	}
-
-	return c.JSON(http.StatusOK, apiResponse)
+	return successApiResponse(http.StatusOK, book, c)
 }
 
-func (bc *bookController) UpdateBook(book *domain.RequestBook, c Context) error {
-	bookResponse, err := bc.bookInteractor.Update(book)
-	if err != nil {
-		return err
+func (bc *bookController) UpdateBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(bookRequest); err != nil {
+		return errorApiResponse(http.StatusBadRequest, "Bad Request", c)
 	}
 
+	bookResponse, err := bc.bookInteractor.Update(bookRequest)
+	if err != nil {
+		return errorApiResponse(http.StatusInternalServerError, "Internal Server Error", c)
+	}
+
+	return successApiResponse(http.StatusOK, bookResponse, c)
+}
+
+func errorApiResponse(code int, message string, c Context) error {
+	apiResponse := domain.ResponseApiError{
+		Error:   true,
+		Message: message,
+	}
+
+	return c.JSON(code, apiResponse)
+}
+
+func successApiResponse(code int, data interface{}, c Context) error {
 	apiResponse := domain.ResponseApiSuccess{
 		Error:   false,
-		Message: "success",
-		Data:    bookResponse,
+		Message: "Success",
+		Data:    data,
 	}
 
-	return c.JSON(http.StatusOK, apiResponse)
+	return c.JSON(code, apiResponse)
 }

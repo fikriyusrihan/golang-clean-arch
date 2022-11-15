@@ -1,6 +1,8 @@
 package interactor
 
 import (
+	"time"
+
 	"github.com/fikriyusrihan/golang-clean-arch/domain"
 	"github.com/fikriyusrihan/golang-clean-arch/usecase/presenter"
 	"github.com/fikriyusrihan/golang-clean-arch/usecase/repository"
@@ -14,7 +16,7 @@ type bookInteractor struct {
 type BookInteractor interface {
 	Create(book *domain.RequestBook) (*domain.ResponseDetailBook, error)
 	Update(book *domain.RequestBook) (*domain.ResponseDetailBook, error)
-	Delete(book *domain.Book) error
+	Delete(book *domain.RequestBook) error
 	Get() ([]*domain.ResponseBook, error)
 	GetByISBN(isbn string) (*domain.ResponseDetailBook, error)
 	GetByTitle(title string) ([]*domain.ResponseBook, error)
@@ -26,25 +28,50 @@ func NewBookInteractor(r repository.BookRepository, p presenter.BookPresenter) B
 }
 
 func (bi *bookInteractor) Create(bookRequest *domain.RequestBook) (*domain.ResponseDetailBook, error) {
-	book, err := bi.BookRepository.Create(bookRequest)
+	book := domain.Book{
+		ISBN:        bookRequest.ISBN,
+		Title:       bookRequest.Title,
+		Author:      bookRequest.Author,
+		Description: bookRequest.Description,
+		PageCount:   bookRequest.PageCount,
+		CoverUrl:    bookRequest.CoverUrl,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	bookResult, err := bi.BookRepository.Create(&book)
 	if err != nil {
 		return nil, err
 	}
 
-	return bi.BookPresenter.ResponseBook(book), nil
+	return bi.BookPresenter.ResponseBook(bookResult), nil
 }
 
 func (bi *bookInteractor) Update(bookRequest *domain.RequestBook) (*domain.ResponseDetailBook, error) {
-	book, err := bi.BookRepository.Update(bookRequest)
+	book := domain.Book{
+		ISBN:        bookRequest.ISBN,
+		Title:       bookRequest.Title,
+		Author:      bookRequest.Author,
+		Description: bookRequest.Description,
+		PageCount:   bookRequest.PageCount,
+		CoverUrl:    bookRequest.CoverUrl,
+		UpdatedAt:   time.Now(),
+	}
+
+	bookResult, err := bi.BookRepository.Update(&book)
 	if err != nil {
 		return nil, err
 	}
 
-	return bi.BookPresenter.ResponseBook(book), nil
+	return bi.BookPresenter.ResponseBook(bookResult), nil
 }
 
-func (bi *bookInteractor) Delete(book *domain.Book) error {
-	return bi.BookRepository.Delete(book)
+func (bi *bookInteractor) Delete(bookRequest *domain.RequestBook) error {
+	book := domain.Book{
+		ISBN: bookRequest.ISBN,
+	}
+
+	return bi.BookRepository.Delete(&book)
 }
 
 func (bi *bookInteractor) Get() ([]*domain.ResponseBook, error) {
