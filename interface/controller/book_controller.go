@@ -12,20 +12,30 @@ type bookController struct {
 }
 
 type BookController interface {
-	CreateBook(book *domain.RequestBook, c Context) error
-	UpdateBook(book *domain.RequestBook, c Context) error
-	DeleteBook(book *domain.Book, c Context) error
+	CreateBook(c Context) error
+	UpdateBook(c Context) error
+	DeleteBook(c Context) error
 	GetBooks(c Context) error
-	GetBookByISBN(isbn string, c Context) error
-	GetBooksByTitle(title string, c Context) error
+	GetBookByISBN(c Context) error
+	GetBooksByTitle(c Context) error
 }
 
 func NewBookController(bi interactor.BookInteractor) BookController {
 	return &bookController{bi}
 }
 
-func (bc *bookController) CreateBook(book *domain.RequestBook, c Context) error {
-	bookDetail, err := bc.bookInteractor.Create(book)
+func (bc *bookController) CreateBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(&bookRequest); err != nil {
+		apiResponse := domain.ResponseApiError{
+			Error:   true,
+			Message: "Bad Request",
+		}
+
+		return c.JSON(http.StatusBadRequest, apiResponse)
+	}
+
+	bookDetail, err := bc.bookInteractor.Create(bookRequest)
 	if err != nil {
 		return err
 	}
@@ -40,6 +50,11 @@ func (bc *bookController) CreateBook(book *domain.RequestBook, c Context) error 
 }
 
 func (bc *bookController) GetBooks(c Context) error {
+	title := c.QueryParam("title")
+	if title != "null" {
+		return bc.GetBooksByTitle(c)
+	}
+
 	books, err := bc.bookInteractor.Get()
 	if err != nil {
 		return err
@@ -54,8 +69,18 @@ func (bc *bookController) GetBooks(c Context) error {
 	return c.JSON(http.StatusOK, apiResponse)
 }
 
-func (bc *bookController) DeleteBook(book *domain.Book, c Context) error {
-	if err := bc.bookInteractor.Delete(book); err != nil {
+func (bc *bookController) DeleteBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(bookRequest); err != nil {
+		apiResponse := domain.ResponseApiError{
+			Error:   true,
+			Message: "Bad Request",
+		}
+
+		return c.JSON(http.StatusBadRequest, apiResponse)
+	}
+
+	if err := bc.bookInteractor.Delete(bookRequest); err != nil {
 		return err
 	}
 
@@ -63,14 +88,16 @@ func (bc *bookController) DeleteBook(book *domain.Book, c Context) error {
 		Error:   false,
 		Message: "success",
 		Data: map[string]string{
-			"isbn": book.ISBN,
+			"isbn": bookRequest.ISBN,
 		},
 	}
 
 	return c.JSON(http.StatusOK, apiResponse)
 }
 
-func (bc *bookController) GetBookByISBN(isbn string, c Context) error {
+func (bc *bookController) GetBookByISBN(c Context) error {
+	isbn := c.Param("isbn")
+
 	book, err := bc.bookInteractor.GetByISBN(isbn)
 	if err != nil {
 		return err
@@ -94,7 +121,9 @@ func (bc *bookController) GetBookByISBN(isbn string, c Context) error {
 	return c.JSON(http.StatusOK, apiResponse)
 }
 
-func (bc *bookController) GetBooksByTitle(title string, c Context) error {
+func (bc *bookController) GetBooksByTitle(c Context) error {
+	title := c.Param("title")
+	
 	book, err := bc.bookInteractor.GetByTitle(title)
 	if err != nil {
 		return err
@@ -109,8 +138,18 @@ func (bc *bookController) GetBooksByTitle(title string, c Context) error {
 	return c.JSON(http.StatusOK, apiResponse)
 }
 
-func (bc *bookController) UpdateBook(book *domain.RequestBook, c Context) error {
-	bookResponse, err := bc.bookInteractor.Update(book)
+func (bc *bookController) UpdateBook(c Context) error {
+	bookRequest := new(domain.RequestBook)
+	if err := c.Bind(bookRequest); err != nil {
+		apiResponse := domain.ResponseApiError{
+			Error:   true,
+			Message: "Bad Request",
+		}
+
+		return c.JSON(http.StatusBadRequest, apiResponse)
+	}
+
+	bookResponse, err := bc.bookInteractor.Update(bookRequest)
 	if err != nil {
 		return err
 	}

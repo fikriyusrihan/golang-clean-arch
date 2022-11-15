@@ -14,7 +14,7 @@ type bookRepository struct {
 type BookRepository interface {
 	Create(book *domain.RequestBook) (*domain.Book, error)
 	Update(book *domain.RequestBook) (*domain.Book, error)
-	Delete(book *domain.Book) error
+	Delete(book *domain.RequestBook) error
 	Fetch() ([]*domain.Book, error)
 	FindByISBN(isbn string) (*domain.Book, error)
 	FindByTitle(title string) ([]*domain.Book, error)
@@ -55,7 +55,7 @@ func (br *bookRepository) Update(bookRequest *domain.RequestBook) (*domain.Book,
 		PageCount:   bookRequest.PageCount,
 		CoverUrl:    bookRequest.CoverUrl,
 	}
-	
+
 	result := br.db.Save(book)
 
 	if result.Error != nil {
@@ -65,7 +65,11 @@ func (br *bookRepository) Update(bookRequest *domain.RequestBook) (*domain.Book,
 	return &book, nil
 }
 
-func (br *bookRepository) Delete(book *domain.Book) error {
+func (br *bookRepository) Delete(bookRequest *domain.RequestBook) error {
+	book := domain.Book{
+		ISBN: bookRequest.ISBN,
+	}
+
 	result := br.db.Delete(book)
 
 	if result.Error != nil {
