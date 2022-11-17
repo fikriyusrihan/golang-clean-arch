@@ -1,6 +1,8 @@
 package http
 
 import (
+	"time"
+
 	"github.com/fikriyusrihan/golang-clean-arch/interface/controller"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,6 +21,9 @@ func NewRouter(e *echo.Echo, ctr controller.AppController) *echo.Echo {
 		v1.PUT("/books/:isbn", PutBook(ctr))
 		v1.DELETE("/books/:isbn", DeleteBook(ctr))
 	}
+
+	e.Server.ReadTimeout = 30 * time.Second
+	e.Server.WriteTimeout = 30 * time.Second
 
 	return e
 }

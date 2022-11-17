@@ -32,7 +32,7 @@ cd golang-clean-arch
 docker compose up
 
 # call an endpoint
-curl -x GET http://localhost:8000/v1/books -i
+curl -X GET http://localhost:8000/v1/books -i
 
 # stop container
 docker compose down
