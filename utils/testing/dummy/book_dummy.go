@@ -19,26 +19,38 @@ func DummyBook() domain.Book {
 	}
 }
 
+func DummyBooks() []*domain.Book {
+	book := DummyBook()
+	return []*domain.Book{&book}
+}
+
 func DummyRequestBook() domain.RequestBook {
+	book := DummyBook()
 	return domain.RequestBook{
-		ISBN:        "dummy-isbn",
-		Title:       "dummy-title",
-		Author:      "dummy-author",
-		Description: "dummy-description",
-		PageCount:   100,
-		CoverUrl:    "dummy-cover-url",
+		ISBN:        book.ISBN,
+		Title:       book.Title,
+		Author:      book.Author,
+		Description: book.Description,
+		PageCount:   book.PageCount,
+		CoverUrl:    book.CoverUrl,
 	}
 }
 
 func DummyResponseBook() domain.ResponseBook {
+	book := DummyBook()
 	return domain.ResponseBook{
-		ISBN:        "dummy-isbn",
-		Title:       "dummy-title",
-		Author:      "dummy-author",
-		Description: "dummy-description",
-		PageCount:   100,
-		CoverUrl:    "dummy-cover-url",
+		ISBN:        book.ISBN,
+		Title:       book.Title,
+		Author:      book.Author,
+		Description: book.Description,
+		PageCount:   book.PageCount,
+		CoverUrl:    book.CoverUrl,
 	}
+}
+
+func DummyResponseBooks() []*domain.ResponseBook {
+	book := DummyResponseBook()
+	return []*domain.ResponseBook{&book}
 }
 
 func DummyBookReview() domain.Review {
@@ -52,6 +64,11 @@ func DummyBookReview() domain.Review {
 	}
 }
 
+func DummyBookReviews() []*domain.Review {
+	review := DummyBookReview()
+	return []*domain.Review{&review}
+}
+
 func DummyBookResponseReview() domain.ResponseReview {
 	review := DummyBookReview()
 	return domain.ResponseReview{
@@ -63,14 +80,20 @@ func DummyBookResponseReview() domain.ResponseReview {
 	}
 }
 
+func DummyBookResponseReviews() []domain.ResponseReview {
+	review := DummyBookResponseReview()
+	return []domain.ResponseReview{review}
+}
+
 func DummyResponseDetailBook() domain.ResponseDetailBook {
+	book := DummyBook()
 	return domain.ResponseDetailBook{
-		ISBN:        "dummy-isbn",
-		Title:       "dummy-title",
-		Author:      "dummy-author",
-		Description: "dummy-description",
-		PageCount:   100,
-		CoverUrl:    "dummy-cover-url",
+		ISBN:        book.ISBN,
+		Title:       book.Title,
+		Author:      book.Author,
+		Description: book.Description,
+		PageCount:   book.PageCount,
+		CoverUrl:    book.CoverUrl,
 		Reviews:     []domain.ResponseReview{},
 	}
 }

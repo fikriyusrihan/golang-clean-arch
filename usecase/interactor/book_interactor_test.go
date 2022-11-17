@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/fikriyusrihan/golang-clean-arch/domain"
 	"github.com/fikriyusrihan/golang-clean-arch/usecase/interactor"
 	"github.com/fikriyusrihan/golang-clean-arch/utils/testing/dummy"
 	"github.com/fikriyusrihan/golang-clean-arch/utils/testing/mocks"
@@ -13,28 +12,28 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockBookRequest := dummy.DummyRequestBook()
-	mockBookResponse := dummy.DummyResponseDetailBook()
+	dummyBook := dummy.DummyBook()
+	dummyBookRequest := dummy.DummyRequestBook()
+	dummyBookResponse := dummy.DummyResponseDetailBook()
 
 	t.Run("Create - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("Create", mock.Anything).Return(&mockBook, nil).Once()
-		mockBookPresenter.On("ResponseBook", &mockBook).Return(&mockBookResponse).Once()
+		mockBookRepository.On("Create", mock.Anything).Return(&dummyBook, nil).Once()
+		mockBookPresenter.On("ResponseBook", &dummyBook).Return(&dummyBookResponse).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		bookResponse, err := uc.Create(&mockBookRequest)
+		bookResponse, err := uc.Create(&dummyBookRequest)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, bookResponse)
-		assert.Equal(t, mockBookRequest.ISBN, bookResponse.ISBN)
-		assert.Equal(t, mockBookRequest.Title, bookResponse.Title)
+		assert.Equal(t, dummyBookRequest.ISBN, bookResponse.ISBN)
+		assert.Equal(t, dummyBookRequest.Title, bookResponse.Title)
 
 		mockBookRepository.AssertCalled(t, "Create", mock.Anything)
-		mockBookPresenter.AssertCalled(t, "ResponseBook", &mockBook)
+		mockBookPresenter.AssertCalled(t, "ResponseBook", &dummyBook)
 
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
@@ -48,7 +47,7 @@ func TestCreate(t *testing.T) {
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		bookResponse, err := uc.Create(&mockBookRequest)
+		bookResponse, err := uc.Create(&dummyBookRequest)
 
 		assert.Error(t, err)
 		assert.Nil(t, bookResponse)
@@ -61,27 +60,27 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockBookRequest := dummy.DummyRequestBook()
-	mockBookResponse := dummy.DummyResponseDetailBook()
+	dummyBook := dummy.DummyBook()
+	dummyBookRequest := dummy.DummyRequestBook()
+	dummyBookResponse := dummy.DummyResponseDetailBook()
 
 	t.Run("Update - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("Update", mock.Anything).Return(&mockBook, nil).Once()
-		mockBookPresenter.On("ResponseBook", &mockBook).Return(&mockBookResponse).Once()
+		mockBookRepository.On("Update", mock.Anything).Return(&dummyBook, nil).Once()
+		mockBookPresenter.On("ResponseBook", &dummyBook).Return(&dummyBookResponse).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.Update(&mockBookRequest)
+		responseBook, err := uc.Update(&dummyBookRequest)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseBook)
-		assert.Equal(t, mockBookRequest.Author, responseBook.Author)
+		assert.Equal(t, dummyBookRequest.Author, responseBook.Author)
 
 		mockBookRepository.AssertCalled(t, "Update", mock.Anything)
-		mockBookPresenter.AssertCalled(t, "ResponseBook", &mockBook)
+		mockBookPresenter.AssertCalled(t, "ResponseBook", &dummyBook)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
@@ -94,7 +93,7 @@ func TestUpdate(t *testing.T) {
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.Update(&mockBookRequest)
+		responseBook, err := uc.Update(&dummyBookRequest)
 
 		assert.Error(t, err)
 		assert.Nil(t, responseBook)
@@ -107,7 +106,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	mockBookRequest := dummy.DummyRequestBook()
+	dummyBookRequest := dummy.DummyRequestBook()
 
 	t.Run("Delete - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
@@ -117,7 +116,7 @@ func TestDelete(t *testing.T) {
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		err := uc.Delete(&mockBookRequest)
+		err := uc.Delete(&dummyBookRequest)
 
 		assert.NoError(t, err)
 
@@ -127,23 +126,15 @@ func TestDelete(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockResponseBook := dummy.DummyResponseBook()
-
-	mockBooks := []*domain.Book{
-		&mockBook,
-	}
-
-	mockResponseBooks := []*domain.ResponseBook{
-		&mockResponseBook,
-	}
+	dummyBooks := dummy.DummyBooks()
+	dummyResponseBooks := dummy.DummyResponseBooks()
 
 	t.Run("Get - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("Fetch").Return(mockBooks, nil).Once()
-		mockBookPresenter.On("ResponseBooks", mockBooks).Return(mockResponseBooks)
+		mockBookRepository.On("Fetch").Return(dummyBooks, nil).Once()
+		mockBookPresenter.On("ResponseBooks", dummyBooks).Return(dummyResponseBooks)
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
@@ -151,10 +142,10 @@ func TestGet(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseBooks)
-		assert.Equal(t, mockBooks[0].Title, responseBooks[0].Title)
+		assert.Equal(t, dummyBooks[0].Title, responseBooks[0].Title)
 
 		mockBookRepository.AssertCalled(t, "Fetch")
-		mockBookPresenter.AssertCalled(t, "ResponseBooks", mockBooks)
+		mockBookPresenter.AssertCalled(t, "ResponseBooks", dummyBooks)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
@@ -180,26 +171,26 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetByISBN(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockBookResponse := dummy.DummyResponseDetailBook()
+	dummyBook := dummy.DummyBook()
+	dummyBookResponse := dummy.DummyResponseDetailBook()
 
 	t.Run("GetByISBN - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FindByISBN", mockBook.ISBN).Return(&mockBook, nil).Once()
-		mockBookPresenter.On("ResponseBook", &mockBook).Return(&mockBookResponse).Once()
+		mockBookRepository.On("FindByISBN", dummyBook.ISBN).Return(&dummyBook, nil).Once()
+		mockBookPresenter.On("ResponseBook", &dummyBook).Return(&dummyBookResponse).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.GetByISBN(mockBook.ISBN)
+		responseBook, err := uc.GetByISBN(dummyBook.ISBN)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseBook)
-		assert.Equal(t, mockBook.ISBN, responseBook.ISBN)
+		assert.Equal(t, dummyBook.ISBN, responseBook.ISBN)
 
-		mockBookRepository.AssertCalled(t, "FindByISBN", mockBook.ISBN)
-		mockBookPresenter.AssertCalled(t, "ResponseBook", &mockBook)
+		mockBookRepository.AssertCalled(t, "FindByISBN", dummyBook.ISBN)
+		mockBookPresenter.AssertCalled(t, "ResponseBook", &dummyBook)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
@@ -208,50 +199,43 @@ func TestGetByISBN(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FindByISBN", mockBook.ISBN).Return(nil, errors.New("Unexpected Error")).Once()
+		mockBookRepository.On("FindByISBN", dummyBook.ISBN).Return(nil, errors.New("Unexpected Error")).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.GetByISBN(mockBook.ISBN)
+		responseBook, err := uc.GetByISBN(dummyBook.ISBN)
 
 		assert.Nil(t, responseBook)
 		assert.Error(t, err)
 
-		mockBookRepository.AssertCalled(t, "FindByISBN", mockBook.ISBN)
-		mockBookPresenter.AssertNotCalled(t, "ResponseBook", &mockBook)
+		mockBookRepository.AssertCalled(t, "FindByISBN", dummyBook.ISBN)
+		mockBookPresenter.AssertNotCalled(t, "ResponseBook", &dummyBook)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
 }
 
 func TestGetByTitle(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockResponseBook := dummy.DummyResponseBook()
-
-	mockBooks := []*domain.Book{
-		&mockBook,
-	}
-
-	mockResponseBooks := []*domain.ResponseBook{
-		&mockResponseBook,
-	}
+	dummyBook := dummy.DummyBook()
+	dummyBooks := dummy.DummyBooks()
+	dummyResponseBooks := dummy.DummyResponseBooks()
 
 	t.Run("GetByTitle - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FindByTitle", mockBook.Title).Return(mockBooks, nil).Once()
-		mockBookPresenter.On("ResponseBooks", mockBooks).Return(mockResponseBooks).Once()
+		mockBookRepository.On("FindByTitle", dummyBook.Title).Return(dummyBooks, nil).Once()
+		mockBookPresenter.On("ResponseBooks", dummyBooks).Return(dummyResponseBooks).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.GetByTitle(mockBook.Title)
+		responseBook, err := uc.GetByTitle(dummyBook.Title)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseBook)
 
-		mockBookRepository.AssertCalled(t, "FindByTitle", mockBook.Title)
-		mockBookPresenter.AssertCalled(t, "ResponseBooks", mockBooks)
+		mockBookRepository.AssertCalled(t, "FindByTitle", dummyBook.Title)
+		mockBookPresenter.AssertCalled(t, "ResponseBooks", dummyBooks)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
@@ -260,45 +244,37 @@ func TestGetByTitle(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FindByTitle", mockBook.Title).Return(nil, errors.New("Unexpected Error")).Once()
+		mockBookRepository.On("FindByTitle", dummyBook.Title).Return(nil, errors.New("Unexpected Error")).Once()
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseBook, err := uc.GetByTitle(mockBook.Title)
+		responseBook, err := uc.GetByTitle(dummyBook.Title)
 
 		assert.Nil(t, responseBook)
 		assert.Error(t, err)
 
-		mockBookRepository.AssertCalled(t, "FindByTitle", mockBook.Title)
-		mockBookPresenter.AssertNotCalled(t, "ResponseBooks", mockBooks)
+		mockBookRepository.AssertCalled(t, "FindByTitle", dummyBook.Title)
+		mockBookPresenter.AssertNotCalled(t, "ResponseBooks", dummyBooks)
 		mockBookRepository.AssertExpectations(t)
 		mockBookPresenter.AssertExpectations(t)
 	})
 }
 
 func TestGetReviews(t *testing.T) {
-	mockBook := dummy.DummyBook()
-	mockBookReview := dummy.DummyBookReview()
-	mockBookResponseReview := dummy.DummyBookResponseReview()
-
-	mockBookReviews := []*domain.Review{
-		&mockBookReview,
-	}
-
-	mockResponseReviews := []domain.ResponseReview{
-		mockBookResponseReview,
-	}
+	dummyBook := dummy.DummyBook()
+	dummyBookReviews := dummy.DummyBookReviews()
+	dummyResponseReviews := dummy.DummyBookResponseReviews()
 
 	t.Run("GetReviews - Success", func(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FetchBookReviews", &mockBook).Return(mockBookReviews, nil)
-		mockBookPresenter.On("ResponseReviews", mockBookReviews).Return(mockResponseReviews, nil)
+		mockBookRepository.On("FetchBookReviews", &dummyBook).Return(dummyBookReviews, nil)
+		mockBookPresenter.On("ResponseReviews", dummyBookReviews).Return(dummyResponseReviews, nil)
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseReview, err := uc.GetBookReviews(&mockBook)
+		responseReview, err := uc.GetBookReviews(&dummyBook)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, responseReview)
@@ -311,11 +287,11 @@ func TestGetReviews(t *testing.T) {
 		mockBookRepository := new(mocks.BookRepositoryMock)
 		mockBookPresenter := new(mocks.BookPresenterMock)
 
-		mockBookRepository.On("FetchBookReviews", &mockBook).Return(nil, errors.New("Unexpected Error"))
+		mockBookRepository.On("FetchBookReviews", &dummyBook).Return(nil, errors.New("Unexpected Error"))
 
 		uc := interactor.NewBookInteractor(mockBookRepository, mockBookPresenter)
 
-		responseReview, err := uc.GetBookReviews(&mockBook)
+		responseReview, err := uc.GetBookReviews(&dummyBook)
 
 		assert.Nil(t, responseReview)
 		assert.Error(t, err)
